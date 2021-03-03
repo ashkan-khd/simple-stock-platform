@@ -18,3 +18,10 @@ class UpdateHistoryModel(models.Model):
 class BaseHistoryModel(CreateHistoryModel, UpdateHistoryModel):
     class Meta:
         abstract = True
+
+
+def null_blank(value=True):
+    return {
+        'null': value,
+        'blank': value
+    }
