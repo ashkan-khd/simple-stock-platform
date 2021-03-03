@@ -5,6 +5,7 @@ chardet==4.0.0
 Django==3.1.7
 django-cleanup==5.1.0
 django-cors-headers==3.7.0
+django-jalali-date==0.3.1
 djangorestframework==3.12.2
 idna==2.10
 jdatetime==3.6.2

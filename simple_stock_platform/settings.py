@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # end django apps
     'corsheaders',
     'rest_framework',
+    'jalali_date',
     # start my apps
     'symbols.apps.SymbolsConfig',
     # end my apps
