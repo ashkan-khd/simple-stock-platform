@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from symbols.models import Symbol
+
+admin.site.register(Symbol)
