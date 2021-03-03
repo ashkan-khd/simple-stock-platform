@@ -1,0 +1,3 @@
+
+class TSECrawlException(Exception):
+    pass

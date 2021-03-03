@@ -3,7 +3,7 @@ from pytse_client import symbols_data
 from symbols.models import Symbol
 
 
-def check_updated_symbols_existence():
+def add_new_symbols():
     symbol_names = symbols_data.all_symbols()
     symbols = []
     for symbol in symbol_names:
