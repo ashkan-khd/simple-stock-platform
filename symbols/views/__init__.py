@@ -1,0 +1,1 @@
+from .update_symbol_view import SymbolUpdateRedirectView

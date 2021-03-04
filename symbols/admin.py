@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.conf.urls import url
 from django.shortcuts import resolve_url
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from jalali_date import datetime2jalali
@@ -75,7 +76,6 @@ class SymbolAdmin(admin.ModelAdmin):
             readonly_fields.extend(fieldset[1]['fields'])
         return readonly_fields
 
-
     list_display = [
         'index',
         'symbol',
@@ -96,13 +96,13 @@ class SymbolAdmin(admin.ModelAdmin):
     ]
 
     def get_created(self, obj):
-        return datetime2jalali(obj.updated).strftime('%Y/%m/%d - %H:%m:%S')
+        return datetime2jalali(obj.created).strftime('%Y/%m/%d - %H:%m:%S')
 
     get_created.short_description = 'تاریخ اضافه شدن'
     get_created.admin_order_field = 'created'
 
     def get_updated(self, obj):
-        if obj.created - obj.updated < timezone.timedelta(seconds=1):
+        if obj.updated - obj.created < timezone.timedelta(seconds=1):
             return 'تا کنون آپدیت نشده است!'
         return datetime2jalali(obj.updated).strftime('%Y/%m/%d - %H:%m:%S')
 
@@ -110,27 +110,25 @@ class SymbolAdmin(admin.ModelAdmin):
     get_updated.admin_order_field = 'updated'
 
     def open_url(self, obj):
+        if not obj.url:
+            return '-'
         return format_html(
             '<a '
             'href={} role="button" '
-            'style="color:#fff;background-color:#337ab7;border-color:#2e6da4;padding: 10px;border-radius: 8px;">'
-            'باز کردن لینک'
+            'style="color:#fff;background-color:#4caf50;border-color:#235025;padding: 10px;border-radius: 8px;">'
+            'باز کردن'
             '</a>'.format(obj.url)
         )
 
     open_url.short_description = 'لینک صفحه نماد'
 
     def update_symbol(self, obj):
-        url = resolve_url(admin_urlname(obj.__class__._meta, 'change'), obj.id)
-        try:
-            update_symbol(obj)
-        except TSECrawlException as e:
-            raise ValidationError(str(e))
+        url = reverse('admin-symbol-update', kwargs={'pk': obj.id})
         return format_html(
             '<a '
             'href={} role="button" '
             'style="color:#fff;background-color:#337ab7;border-color:#2e6da4;padding: 10px;border-radius: 8px;">'
-            'باز کردن لینک'
+            'آپدیت کردن اطلاعات'
             '</a>'.format(url)
         )
 
