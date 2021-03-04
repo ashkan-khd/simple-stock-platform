@@ -1,6 +1,7 @@
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import admin
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.conf.urls import url
@@ -25,6 +26,13 @@ def export(request):
 class SymbolAdmin(admin.ModelAdmin):
     list_per_page = 25
 
+    search_fields = (
+        'symbol',
+        'index',
+        'company_name',
+        'group_name'
+    )
+
     fieldsets = (
         (
             None, {
@@ -32,6 +40,7 @@ class SymbolAdmin(admin.ModelAdmin):
                     'index',
                     'symbol',
                     'company_name',
+                    'group_name',
                     'open_url',
                     'update_symbol',
                 )
@@ -41,8 +50,8 @@ class SymbolAdmin(admin.ModelAdmin):
             'وضعیت سهام', {
                 'fields': (
                     'eps',
-                    'p_e_ratio',
-                    'group_p_e_ratio'
+                    'get_p_e_ratio',
+                    'get_group_p_e_ratio'
                 )
             }
         ),
@@ -77,7 +86,6 @@ class SymbolAdmin(admin.ModelAdmin):
         return readonly_fields
 
     list_display = [
-        'index',
         'symbol',
         'open',
         'high',
@@ -87,7 +95,7 @@ class SymbolAdmin(admin.ModelAdmin):
         'volume',
         'count',
         'eps',
-        'p_e_ratio',
+        'get_p_e_ratio',
         'get_updated'
     ]
 
@@ -102,12 +110,28 @@ class SymbolAdmin(admin.ModelAdmin):
     get_created.admin_order_field = 'created'
 
     def get_updated(self, obj):
-        if obj.updated - obj.created < timezone.timedelta(seconds=1):
+        if obj.updated - obj.created < timezone.timedelta(seconds=0.5):
             return 'تا کنون آپدیت نشده است!'
         return datetime2jalali(obj.updated).strftime('%Y/%m/%d - %H:%m:%S')
 
     get_updated.short_description = 'آخرین زمان آپدیت'
     get_updated.admin_order_field = 'updated'
+
+    def get_p_e_ratio(self, obj):
+        if not obj.p_e_ratio:
+            return '-'
+        return "% {:.3f}".format(obj.p_e_ratio)
+
+    get_p_e_ratio.short_description = 'P/E'
+    get_p_e_ratio.admin_order_field = 'p_e_ratio'
+
+    def get_group_p_e_ratio(self, obj):
+        if not obj.group_p_e_ratio:
+            return '-'
+        return "% {:.3f}".format(obj.group_p_e_ratio)
+
+    get_group_p_e_ratio.short_description = 'Group P/E'
+    get_group_p_e_ratio.admin_order_field = 'group_p_e_ratio'
 
     def open_url(self, obj):
         if not obj.url:
@@ -135,7 +159,14 @@ class SymbolAdmin(admin.ModelAdmin):
     update_symbol.short_description = 'آپدیت کردن اطلاعات'
 
     def update_symbols(self, request, queryset):
-        pass
+        if queryset.count() > 10:
+            messages.error(request, 'قابلیت آپدیت کردن بیش از ۱۰ نماد بصورت همزمان را ندارید!')
+            return
+        for symbol in queryset:
+            try:
+                update_symbol(symbol)
+            except TSECrawlException as e:
+                messages.error(request, str(symbol) + ': ' + str(e))
 
     update_symbols.short_description = 'آپدیت نماد های انتخاب شده'
 

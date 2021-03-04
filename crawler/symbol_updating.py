@@ -12,6 +12,7 @@ def update_symbol(symbol):
         symbol.eps = ticker.eps
         symbol.p_e_ratio = ticker.p_e_ratio
         symbol.group_p_e_ratio = ticker.group_p_e_ratio
+        symbol.group_name = ticker.group_name
         symbol.save()
         try:
             history_df = ticker.history

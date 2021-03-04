@@ -24,6 +24,9 @@ class Symbol(BaseHistoryModel):
     volume = models.PositiveBigIntegerField(verbose_name='حجم معاملات', **null_blank())
     count = models.PositiveBigIntegerField(verbose_name='تعداد معاملات', **null_blank())
 
+    def __str__(self):
+        return self.symbol
+
     class Meta:
         verbose_name = 'نماد'
         verbose_name_plural = 'نماد ها'
