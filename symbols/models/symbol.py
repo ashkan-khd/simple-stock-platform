@@ -5,7 +5,9 @@ from utility.models import null_blank, BaseHistoryModel
 
 class Symbol(BaseHistoryModel):
     symbol = models.CharField(max_length=255, verbose_name='نماد', unique=True)
+    index = models.CharField(max_length=255, **null_blank())
     company_name = models.CharField(max_length=255, verbose_name='نام شرکت', **null_blank())
+    group_name = models.CharField(max_length=255, verbose_name='نام گروه', **null_blank())
     url = models.URLField(verbose_name='آدرس صفحه سهم', **null_blank())
 
     eps = models.IntegerField(verbose_name='eps', **null_blank())
